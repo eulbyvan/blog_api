@@ -20,48 +20,12 @@ Welcome to the Blog API documentation. This API allows you to manage posts and t
 - [Database Schema](#database-schema)
 - [Running the Application](#running-the-application)
 
-## Getting Started
-
-### Prerequisites
-- Go 1.16 or higher
-- PostgreSQL
-
-### Installation
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/your_username/blog_api.git
-    cd blog_api
-    ```
-
-2. Install dependencies:
-    ```bash
-    go mod tidy
-    ```
-
-3. Set up your PostgreSQL database and update the connection string in `database.go` file:
-    ```go
-    const (
-        host     = "localhost"
-        port     = 5432
-        user     = "your_db_user"
-        password = "your_db_password"
-        dbname   = "your_db_name"
-    )
-    ```
-
-4. Run the database migrations to set up the schema.
-
-5. Start the server:
-    ```bash
-    go run main.go
-    ```
-
 ## API Endpoints
 
 ### Posts
 
 #### Create Post
-- **URL:** `/api/v1/posts`
+- **URL:** `/api/posts`
 - **Method:** `POST`
 - **Request Body:**
     ```json
@@ -70,14 +34,7 @@ Welcome to the Blog API documentation. This API allows you to manage posts and t
       "content": "Lorem ipsum",
       "status": "draft",
       "publish_date": "2024-05-25T10:00:00Z",
-      "tags": [
-        {
-          "label": "Go"
-        },
-        {
-          "label": "API"
-        }
-      ]
+      "tags": ["Go", "Lang"]
     }
     ```
 - **Response:**
@@ -99,7 +56,7 @@ Welcome to the Blog API documentation. This API allows you to manage posts and t
               },
               {
                 "id": 2,
-                "label": "API"
+                "label": "Lang"
               }
             ]
           }
@@ -115,7 +72,7 @@ Welcome to the Blog API documentation. This API allows you to manage posts and t
         ```
 
 #### Update Post
-- **URL:** `/api/v1/posts/{id}`
+- **URL:** `/api/posts/{id}`
 - **Method:** `PUT`
 - **Request Body:**
     ```json
@@ -169,7 +126,7 @@ Welcome to the Blog API documentation. This API allows you to manage posts and t
         ```
 
 #### Delete Post
-- **URL:** `/api/v1/posts/{id}`
+- **URL:** `/api/posts/{id}`
 - **Method:** `DELETE`
 - **Response:**
     - **Success (200 OK):**
@@ -190,7 +147,7 @@ Welcome to the Blog API documentation. This API allows you to manage posts and t
         ```
 
 #### Get Post by ID
-- **URL:** `/api/v1/posts/{id}`
+- **URL:** `/api/posts/{id}`
 - **Method:** `GET`
 - **Response:**
     - **Success (200 OK):**
@@ -227,7 +184,7 @@ Welcome to the Blog API documentation. This API allows you to manage posts and t
         ```
 
 #### Get Paged Posts
-- **URL:** `/api/v1/posts`
+- **URL:** `/api/posts`
 - **Method:** `GET`
 - **Query Parameters:**
     - `page` (optional, default: 1): The page number.
@@ -272,7 +229,7 @@ Welcome to the Blog API documentation. This API allows you to manage posts and t
 ### Tags
 
 #### Create Tag
-- **URL:** `/api/v1/tags`
+- **URL:** `/api/tags`
 - **Method:** `POST`
 - **Request Body:**
     ```json
@@ -302,7 +259,7 @@ Welcome to the Blog API documentation. This API allows you to manage posts and t
         ```
 
 #### Update Tag
-- **URL:** `/api/v1/tags/{id}`
+- **URL:** `/api/tags/{id}`
 - **Method:** `PUT`
 - **Request Body:**
     ```json
@@ -332,7 +289,7 @@ Welcome to the Blog API documentation. This API allows you to manage posts and t
         ```
 
 #### Delete Tag
-- **URL:** `/api/v1/tags/{id}`
+- **URL:** `/api/tags/{id}`
 - **Method:** `DELETE`
 - **Response:**
     - **Success (200 OK):**
@@ -353,7 +310,7 @@ Welcome to the Blog API documentation. This API allows you to manage posts and t
         ```
 
 #### Get Tag by ID
-- **URL:** `/api/v1/tags/{id}`
+- **URL:** `/api/tags/{id}`
 - **Method:** `GET`
 - **Response:**
     - **Success (200 OK):**
@@ -377,7 +334,7 @@ Welcome to the Blog API documentation. This API allows you to manage posts and t
         ```
 
 #### Get All Tags
-- **URL:** `/api/v1/tags`
+- **URL:** `/api/tags`
 - **Method:** `GET`
 - **Response:**
     - **Success (200 OK):**

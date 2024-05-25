@@ -50,19 +50,31 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
-	var post entity.Post
+	var postDTO dto.PostDTO
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		JSONResponse(w, http.StatusBadRequest, "error", "Invalid post ID", nil)
 		return
 	}
-	json.NewDecoder(r.Body).Decode(&post)
-	post.ID = id
+
+	if err := json.NewDecoder(r.Body).Decode(&postDTO); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	post := entity.Post{
+		ID:      id,
+		Title:   postDTO.Title,
+		Content: postDTO.Content,
+		Tags:    utility.ConvertTags(postDTO.Tags),
+	}
+
 	data, err := h.postUseCase.UpdatePost(&post)
 	if err != nil {
 		JSONResponse(w, http.StatusInternalServerError, "error", err.Error(), nil)
 		return
 	}
+
 	JSONResponse(w, http.StatusOK, "success", "Post updated successfully", data)
 }
 
