@@ -28,33 +28,30 @@ func printRoutes(r *mux.Router) {
 }
 
 func main() {
-	// Initialize the PostgreSQL database connection
+	// db conn
 	db, err := database.NewPostgresDB()
 	if err != nil {
 		log.Fatalf("Could not connect to the database: %v", err)
 	}
 	defer db.Close()
 
-	// Initialize repositories
+	// dependency injection
 	postRepo := repository.NewPostRepository(db)
-
-	// Initialize use cases
 	postUseCase := usecase.NewPostUseCase(postRepo)
 
-	// Initialize the router
+	// set router
 	r := mux.NewRouter()
 
-	// Register HTTP handlers for posts
+	// register HTTP handlers
 	internalHttp.NewPostHandler(r, postUseCase)
 
-	// Print available routes
+	// print available routes
 	log.Println("Registered Endpoints:")
 	printRoutes(r)
 
-	// Log message indicating server start
 	log.Println("Starting server on port 8080")
 
-	// Start the HTTP server and log an error if it fails to start
+	// start server
 	if err := http.ListenAndServe(":8080", r); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}

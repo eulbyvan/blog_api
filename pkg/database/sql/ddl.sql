@@ -13,7 +13,9 @@ CREATE TABLE tags (
 
 -- junction table
 CREATE TABLE post_tags (
-    post_id INT REFERENCES posts(id) ON DELETE CASCADE,
-    tag_id INT REFERENCES tags(id) ON DELETE CASCADE,
+    post_id INT NOT NULL,
+    tag_id INT NOT NULL,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (post_id, tag_id)
 );

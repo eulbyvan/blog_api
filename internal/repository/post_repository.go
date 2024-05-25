@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/eulbyvan/blog_api/internal/entity"
 )
@@ -177,13 +178,59 @@ func (r *postRepository) Update(post *entity.Post) (*entity.Post, error) {
 }
 
 func (r *postRepository) Delete(id int) error {
-	// TODO implement me!
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(`DELETE FROM posts WHERE id = $1`, id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (r *postRepository) GetByID(id int) (*entity.Post, error) {
-	// TODO implement me!
-	return nil, nil
+	// Query to get the post details
+	var post entity.Post
+	err := r.db.QueryRow(`SELECT id, title, content, status, publish_date FROM posts WHERE id = $1`, id).
+		Scan(&post.ID, &post.Title, &post.Content, &post.Status, &post.PublishDate)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("post with id %d not found", id)
+		}
+		return nil, err
+	}
+
+	// Query to get the associated tags
+	rows, err := r.db.Query(`SELECT t.id, t.label FROM tags t JOIN post_tags pt ON t.id = pt.tag_id WHERE pt.post_id = $1`, post.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Iterate through the tags and add them to the post
+	for rows.Next() {
+		var tag entity.Tag
+		if err := rows.Scan(&tag.ID, &tag.Label); err != nil {
+			return nil, err
+		}
+		post.Tags = append(post.Tags, tag)
+	}
+
+	// Check for any errors during iteration
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return &post, nil
 }
 
 func (r *postRepository) GetPaged(page, size int) ([]entity.Post, error) {
