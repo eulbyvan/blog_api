@@ -11,23 +11,51 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// printRoutes logs all registered routes
+func printRoutes(r *mux.Router) {
+	r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+		path, err := route.GetPathTemplate()
+		if err != nil {
+			return err
+		}
+		methods, err := route.GetMethods()
+		if err != nil {
+			return err
+		}
+		log.Printf("Endpoint: %s %v\n", path, methods)
+		return nil
+	})
+}
+
 func main() {
-	// db conn
+	// Initialize the PostgreSQL database connection
 	db, err := database.NewPostgresDB()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Could not connect to the database: %v", err)
 	}
+	defer db.Close()
 
-	// dependency injection
+	// Initialize repositories
 	postRepo := repository.NewPostRepository(db)
+
+	// Initialize use cases
 	postUseCase := usecase.NewPostUseCase(postRepo)
 
-	// init router
+	// Initialize the router
 	r := mux.NewRouter()
 
-	// post handler
+	// Register HTTP handlers for posts
 	internalHttp.NewPostHandler(r, postUseCase)
 
-	// start server
-	log.Fatal(http.ListenAndServe(":8080", r))
+	// Print available routes
+	log.Println("Registered Endpoints:")
+	printRoutes(r)
+
+	// Log message indicating server start
+	log.Println("Starting server on port 8080")
+
+	// Start the HTTP server and log an error if it fails to start
+	if err := http.ListenAndServe(":8080", r); err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
 }
