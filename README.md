@@ -1,7 +1,6 @@
 # API Endpoints
 
-- /api/posts
-- /api/posts/{id}
-- /api/posts/{id}
-- /api/posts/{id}
-- /api/posts
+- GET /api/posts
+- POST /api/posts/{id}
+- PUT /api/posts/{id}
+- DELETE /api/posts/{id}
