@@ -198,7 +198,7 @@ func (r *postRepository) Delete(id int) error {
 }
 
 func (r *postRepository) GetByID(id int) (*entity.Post, error) {
-	// Query to get the post details
+	// query to get the post details
 	var post entity.Post
 	err := r.db.QueryRow(`SELECT id, title, content, status, publish_date FROM posts WHERE id = $1`, id).
 		Scan(&post.ID, &post.Title, &post.Content, &post.Status, &post.PublishDate)
@@ -209,14 +209,14 @@ func (r *postRepository) GetByID(id int) (*entity.Post, error) {
 		return nil, err
 	}
 
-	// Query to get the associated tags
+	// query to get the associated tags
 	rows, err := r.db.Query(`SELECT t.id, t.label FROM tags t JOIN post_tags pt ON t.id = pt.tag_id WHERE pt.post_id = $1`, post.ID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	// Iterate through the tags and add them to the post
+	// iterate through the tags and add them to the post
 	for rows.Next() {
 		var tag entity.Tag
 		if err := rows.Scan(&tag.ID, &tag.Label); err != nil {
@@ -225,7 +225,7 @@ func (r *postRepository) GetByID(id int) (*entity.Post, error) {
 		post.Tags = append(post.Tags, tag)
 	}
 
-	// Check for any errors during iteration
+	// check for any errors during iteration
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}

@@ -8,24 +8,9 @@ import (
 	"github.com/eulbyvan/blog_api/internal/repository"
 	"github.com/eulbyvan/blog_api/internal/usecase"
 	"github.com/eulbyvan/blog_api/pkg/database"
+	"github.com/eulbyvan/blog_api/pkg/utility"
 	"github.com/gorilla/mux"
 )
-
-// printRoutes logs all registered routes
-func printRoutes(r *mux.Router) {
-	r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
-		path, err := route.GetPathTemplate()
-		if err != nil {
-			return err
-		}
-		methods, err := route.GetMethods()
-		if err != nil {
-			return err
-		}
-		log.Printf("Endpoint: %s %v\n", path, methods)
-		return nil
-	})
-}
 
 func main() {
 	// db conn
@@ -35,19 +20,24 @@ func main() {
 	}
 	defer db.Close()
 
-	// dependency injection
+	// dependency injection for posts
 	postRepo := repository.NewPostRepository(db)
 	postUseCase := usecase.NewPostUseCase(postRepo)
+
+	// dependency injection for tags
+	tagRepo := repository.NewTagRepository(db)
+	tagUseCase := usecase.NewTagUseCase(tagRepo)
 
 	// set router
 	r := mux.NewRouter()
 
 	// register HTTP handlers
 	internalHttp.NewPostHandler(r, postUseCase)
+	internalHttp.NewTagHandler(r, tagUseCase)
 
 	// print available routes
 	log.Println("Registered Endpoints:")
-	printRoutes(r)
+	utility.PrintRoutes(r)
 
 	log.Println("Starting server on port 8080")
 
