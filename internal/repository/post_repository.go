@@ -198,10 +198,16 @@ func (r *postRepository) Delete(id int) error {
 }
 
 func (r *postRepository) GetByID(id int) (*entity.Post, error) {
-	// query to get the post details
+	// Prepare statement for getting the post details
+	postStmt, err := r.db.Prepare(`SELECT id, title, content, status, publish_date FROM posts WHERE id = $1`)
+	if err != nil {
+		return nil, err
+	}
+	defer postStmt.Close()
+
+	// Query to get the post details
 	var post entity.Post
-	err := r.db.QueryRow(`SELECT id, title, content, status, publish_date FROM posts WHERE id = $1`, id).
-		Scan(&post.ID, &post.Title, &post.Content, &post.Status, &post.PublishDate)
+	err = postStmt.QueryRow(id).Scan(&post.ID, &post.Title, &post.Content, &post.Status, &post.PublishDate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("post with id %d not found", id)
@@ -209,14 +215,21 @@ func (r *postRepository) GetByID(id int) (*entity.Post, error) {
 		return nil, err
 	}
 
-	// query to get the associated tags
-	rows, err := r.db.Query(`SELECT t.id, t.label FROM tags t JOIN post_tags pt ON t.id = pt.tag_id WHERE pt.post_id = $1`, post.ID)
+	// Prepare statement for getting the associated tags
+	tagStmt, err := r.db.Prepare(`SELECT t.id, t.label FROM tags t JOIN post_tags pt ON t.id = pt.tag_id WHERE pt.post_id = $1`)
+	if err != nil {
+		return nil, err
+	}
+	defer tagStmt.Close()
+
+	// Query to get the associated tags
+	rows, err := tagStmt.Query(post.ID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	// iterate through the tags and add them to the post
+	// Iterate through the tags and add them to the post
 	for rows.Next() {
 		var tag entity.Tag
 		if err := rows.Scan(&tag.ID, &tag.Label); err != nil {
@@ -225,7 +238,7 @@ func (r *postRepository) GetByID(id int) (*entity.Post, error) {
 		post.Tags = append(post.Tags, tag)
 	}
 
-	// check for any errors during iteration
+	// Check for any errors during iteration
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -234,6 +247,61 @@ func (r *postRepository) GetByID(id int) (*entity.Post, error) {
 }
 
 func (r *postRepository) GetPaged(page, size int) ([]entity.Post, error) {
-	// TODO implement me!
-	return nil, nil
+	offset := (page - 1) * size
+
+	// Prepare the statement for selecting posts
+	stmt, err := r.db.Prepare(`SELECT id, title, content, status, publish_date FROM posts ORDER BY publish_date DESC LIMIT $1 OFFSET $2`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(size, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []entity.Post
+	for rows.Next() {
+		var post entity.Post
+		err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.Status, &post.PublishDate)
+		if err != nil {
+			return nil, err
+		}
+
+		// Fetch tags for each post
+		tagStmt, err := r.db.Prepare(`SELECT t.id, t.label FROM tags t JOIN post_tags pt ON t.id = pt.tag_id WHERE pt.post_id = $1`)
+		if err != nil {
+			return nil, err
+		}
+		defer tagStmt.Close()
+
+		tagRows, err := tagStmt.Query(post.ID)
+		if err != nil {
+			return nil, err
+		}
+		defer tagRows.Close()
+
+		for tagRows.Next() {
+			var tag entity.Tag
+			err := tagRows.Scan(&tag.ID, &tag.Label)
+			if err != nil {
+				return nil, err
+			}
+			post.Tags = append(post.Tags, tag)
+		}
+
+		if err := tagRows.Err(); err != nil {
+			return nil, err
+		}
+
+		posts = append(posts, post)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return posts, nil
 }
