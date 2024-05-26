@@ -11,6 +11,7 @@ type PostUseCase interface {
 	DeletePost(id int) error
 	GetPostByID(id int) (*entity.Post, error)
 	GetPostsPaged(page, size int) ([]entity.Post, error)
+	GetPostsByTag(tag string, page, size int) ([]entity.Post, error)
 }
 
 type postUseCase struct {
@@ -40,4 +41,8 @@ func (uc *postUseCase) GetPostByID(id int) (*entity.Post, error) {
 
 func (uc *postUseCase) GetPostsPaged(page, size int) ([]entity.Post, error) {
 	return uc.postRepo.GetPaged(page, size)
+}
+
+func (uc *postUseCase) GetPostsByTag(tag string, page, size int) ([]entity.Post, error) {
+	return uc.postRepo.GetByTag(tag, page, size)
 }
