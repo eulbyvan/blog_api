@@ -122,32 +122,28 @@ Follow these steps to run the project on your local development environment:
 
 ### Endpoints
 
-#### GET /api/posts?tag={TAG_FILTER_STRING}&page={PAGE_NUMBER_INT}&size={PAGE_SIZE_INT}
-
-- **Description:** Retrieve a paginated list of posts filtered by a specific tag.
-- **Response:**
+- **[GET /api/posts?tag={TAG_FILTER_STRING}&page={PAGE_NUMBER_INT}&size={PAGE_SIZE_INT}](#get-apipoststagtag_filter_stringpagepage_number_intsizepage_size_int)**
+  - **Description:** Retrieve a paginated list of posts filtered by a specific tag.
+  - **Response:**
     - `200 OK`: Returns a JSON array of posts
 
-#### POST /api/posts
-
-- **Description:** Create a new example
-- **Request:**
+- **[POST /api/posts](#post-apiposts)**
+  - **Description:** Create a new post
+  - **Request:**
     - Body: `{"title":"REST API with Go","content":"Lorem ipsum","tags":["Go","Lang"]}`
-- **Response:**
+  - **Response:**
     - `201 Created`: Returns the created post object
 
-#### PUT /api/posts/{id}
-
-- **Description:** Update an existing post
-- **Request:**
-    - Body: `{"title":"REST API with Go","content":"Lorem ipsum","tags":["Go","Ling"]}`
-- **Response:**
+- **[PUT /api/posts/{id}](#put-apipostsid)**
+  - **Description:** Update an existing post
+  - **Request:**
+    - Body: `{"title":"REST API with Go","content":"Lorem ipsum","tags":["Go","Lang"]}`
+  - **Response:**
     - `200 OK`: Returns the updated post object
 
-#### DELETE /api/posts/{id}
-
-- **Description:** Delete an existing post
-- **Response:**
+- **[DELETE /api/posts/{id}](#delete-apipostsid)**
+  - **Description:** Delete an existing post
+  - **Response:**
     - `204 No Content`: Indicates that the post was successfully deleted
 
 ## Additional Resources
