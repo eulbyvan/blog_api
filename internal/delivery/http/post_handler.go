@@ -89,7 +89,7 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(w, http.StatusInternalServerError, "error", err.Error(), nil)
 		return
 	}
-	JSONResponse(w, http.StatusOK, "success", "Post deleted successfully", nil)
+	JSONResponse(w, http.StatusNoContent, "success", "Post deleted successfully", nil)
 }
 
 func (h *PostHandler) GetPost(w http.ResponseWriter, r *http.Request) {
