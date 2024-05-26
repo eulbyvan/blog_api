@@ -107,9 +107,28 @@ func (h *PostHandler) GetPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PostHandler) GetPostsPaged(w http.ResponseWriter, r *http.Request) {
-	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	size, _ := strconv.Atoi(r.URL.Query().Get("size"))
-	posts, err := h.postUseCase.GetPostsPaged(page, size)
+	// Parse and validate page and size query parameters
+	pageStr := r.URL.Query().Get("page")
+	sizeStr := r.URL.Query().Get("size")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1 // Default to page 1 if not specified or invalid
+	}
+	size, err := strconv.Atoi(sizeStr)
+	if err != nil || size < 1 {
+		size = 10 // Default to size 10 if not specified or invalid
+	}
+
+	tag := r.URL.Query().Get("tag")
+
+	var posts []entity.Post
+
+	if tag != "" {
+		posts, err = h.postUseCase.GetPostsByTag(tag, page, size)
+	} else {
+		posts, err = h.postUseCase.GetPostsPaged(page, size)
+	}
+
 	if err != nil {
 		JSONResponse(w, http.StatusInternalServerError, "error", err.Error(), nil)
 		return

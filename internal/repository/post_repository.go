@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	"github.com/eulbyvan/blog_api/internal/entity"
 )
@@ -14,6 +15,7 @@ type PostRepository interface {
 	Delete(id int) error
 	GetByID(id int) (*entity.Post, error)
 	GetPaged(page, size int) ([]entity.Post, error)
+	GetByTag(tag string, page, size int) ([]entity.Post, error)
 }
 
 // props
@@ -303,5 +305,87 @@ func (r *postRepository) GetPaged(page, size int) ([]entity.Post, error) {
 		return nil, err
 	}
 
+	return posts, nil
+}
+
+func (r *postRepository) GetByTag(tag string, page, size int) ([]entity.Post, error) {
+	offset := (page - 1) * size
+
+	log.Println("GetByTag called with parameters:", tag, page, size, offset)
+
+	stmt, err := r.db.Prepare(`
+		SELECT p.id, p.title, p.content, p.status, p.publish_date 
+		FROM posts p
+		JOIN post_tags pt ON p.id = pt.post_id
+		JOIN tags t ON pt.tag_id = t.id
+		WHERE t.label = $1
+		ORDER BY p.publish_date DESC
+		LIMIT $2 OFFSET $3`)
+	if err != nil {
+		log.Println("Prepare error:", err)
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(tag, size, offset)
+	if err != nil {
+		log.Println("Query error:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []entity.Post
+	for rows.Next() {
+		var post entity.Post
+		err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.Status, &post.PublishDate)
+		if err != nil {
+			log.Println("Scan error:", err)
+			return nil, err
+		}
+
+		log.Println("Post found:", post)
+
+		tagStmt, err := r.db.Prepare(`
+			SELECT t.id, t.label 
+			FROM tags t
+			JOIN post_tags pt ON t.id = pt.tag_id
+			WHERE pt.post_id = $1`)
+		if err != nil {
+			log.Println("Tag Prepare error:", err)
+			return nil, err
+		}
+		defer tagStmt.Close()
+
+		tagRows, err := tagStmt.Query(post.ID)
+		if err != nil {
+			log.Println("Tag Query error:", err)
+			return nil, err
+		}
+		defer tagRows.Close()
+
+		for tagRows.Next() {
+			var tag entity.Tag
+			err := tagRows.Scan(&tag.ID, &tag.Label)
+			if err != nil {
+				log.Println("Tag Scan error:", err)
+				return nil, err
+			}
+			post.Tags = append(post.Tags, tag)
+		}
+
+		if err := tagRows.Err(); err != nil {
+			log.Println("Tag Rows error:", err)
+			return nil, err
+		}
+
+		posts = append(posts, post)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Println("Rows error:", err)
+		return nil, err
+	}
+
+	log.Println("Posts found:", posts)
 	return posts, nil
 }
