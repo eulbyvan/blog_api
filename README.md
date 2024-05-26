@@ -121,30 +121,51 @@ Follow these steps to run the project on your local development environment:
 ## API Documentation
 
 ### Endpoints
+1. **Get a paginated list of posts filtered by a specific tag**
 
-- **[GET /api/posts?tag={TAG_FILTER_STRING}&page={PAGE_NUMBER_INT}&size={PAGE_SIZE_INT}](#get-apipoststagtag_filter_stringpagepage_number_intsizepage_size_int)**
-  - **Description:** Retrieve a paginated list of posts filtered by a specific tag.
-  - **Response:**
-    - `200 OK`: Returns a JSON array of posts
+    ```http
+    GET /api/posts?tag={TAG_FILTER_STRING}&page={PAGE_NUMBER_INT}&size={PAGE_SIZE_INT}
+    ```
 
-- **[POST /api/posts](#post-apiposts)**
-  - **Description:** Create a new post
-  - **Request:**
-    - Body: `{"title":"REST API with Go","content":"Lorem ipsum","tags":["Go","Lang"]}`
-  - **Response:**
-    - `201 Created`: Returns the created post object
+    **Response:**
+    `200 OK`: Returns a JSON array of posts
 
-- **[PUT /api/posts/{id}](#put-apipostsid)**
-  - **Description:** Update an existing post
-  - **Request:**
-    - Body: `{"title":"REST API with Go","content":"Lorem ipsum","tags":["Go","Lang"]}`
-  - **Response:**
-    - `200 OK`: Returns the updated post object
+2. **Create a new post**
 
-- **[DELETE /api/posts/{id}](#delete-apipostsid)**
-  - **Description:** Delete an existing post
-  - **Response:**
-    - `204 No Content`: Indicates that the post was successfully deleted
+    ```http
+    POST /api/posts
+    ```
+    **Request Body:**
+    ```json
+    {
+        "title": "REST API with Go",
+        "content": "Lorem ipsum",
+        "tags": ["Go", "Lang"]
+    }
+    ```
+
+    **Response:**
+    `201` Created: Returns the created post object
+3. **Update a post**
+    ```http
+    PUT /api/posts/{id}
+    ```
+    **Request Body:**
+    ```json
+    {
+        "title": "REST API with Go",
+        "content": "Lorem ipsum dolor sit amet",
+        "tags": ["Go", "Lang"]
+    }
+    ```
+    **Response:**
+    `200 OK`: Returns the updated post object
+4. **Delete an existing post**
+    ```http
+    DELETE /api/posts/{id}
+    ```
+    **Response:**
+    `204 No Content`: Indicates that the post was successfully deleted
 
 ## Additional Resources
 
