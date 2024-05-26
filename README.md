@@ -154,5 +154,4 @@ Follow these steps to run the project on your local development environment:
 
 - [Go Documentation](https://golang.org/doc/)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [Go Migrate](https://github.com/golang-migrate/migrate)
 - [dotenv](https://github.com/joho/godotenv)
