@@ -19,20 +19,3 @@ CREATE TABLE post_tags (
     tag_id INT REFERENCES tags(id) ON DELETE CASCADE,
     PRIMARY KEY (post_id, tag_id)
 );
-
--- Insert some example data
-INSERT INTO posts (title, content, status, publish_date)
-VALUES
-('First Post', 'Content of the first post', 'draft', NULL),
-('Second Post', 'Content of the second post', 'publish', '2023-05-25 10:00:00');
-
-INSERT INTO tags (label)
-VALUES
-('Go'),
-('API');
-
-INSERT INTO post_tags (post_id, tag_id)
-VALUES
-(1, 1),
-(1, 2),
-(2, 1);
